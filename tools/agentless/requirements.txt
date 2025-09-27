@@ -1,0 +1,13 @@
+anthropic
+openai
+google-generativeai
+together
+requests
+pre-commit
+datasets
+tiktoken
+swebench
+libcst
+bugswarm-common
+javalang
+jpype1

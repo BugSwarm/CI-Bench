@@ -1,0 +1,44 @@
+name: Anonymize and Sync Repo
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to sync'
+        required: true
+        default: 'main'
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout source repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.inputs.branch }}
+
+    - name: Configure git user
+      run: |
+        git config --global user.email "bugswarm@bugswarm.com"
+        git config --global user.name "BugSwarm"
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_KEY_TO_PUSH }}
+
+    - name: Rewrite commit history to anonymize
+      run: |
+        rm -rf .git
+        git init
+        git add .
+        git commit -m "sync repository"
+
+    - name: Force push to target repository
+      run: |
+        TARGET_REPO_SSH_URL="git@github.com:bugswarm/CI-Bench.git"
+        git remote add target ${TARGET_REPO_SSH_URL}
+        git push target master --force

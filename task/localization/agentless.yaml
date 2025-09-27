@@ -1,0 +1,36 @@
+tool_name: agentless
+parameters:
+  n_files: 3
+  window_size: 10
+  model_name: claude-3-5-sonnet-20241022
+  backend: anthropic
+  language: java
+  loc_output_folder: results/location
+  loc_file_path: results/location/loc_outputs.jsonl
+  repair_output_folder: results/repair--loc_interval
+  patch_folder_path: patches
+  working_directory: Agentless
+  max_samples: 10
+  bugswarm_token: <token>
+  openai_token: <token>
+  anthropic_token: <token>
+  venv_name: agentless-env
+
+setup_commands:
+  conda:
+    - conda create -n <venv_name> python=3.11
+    - conda activate <venv_name>
+    - pip install -r requirements.txt
+    - export PYTHONPATH=$PYTHONPATH:$(pwd)
+  python:
+    - python3 -m venv <venv_name>
+    - source <venv_name>/bin/activate
+    - pip install -r requirements.txt
+    - export PYTHONPATH=$PYTHONPATH:$(pwd)
+
+run_commands:
+  - export OPENAI_API_KEY=<openai_token>
+  - export ANTHROPIC_API_KEY=<anthropic_token>
+  - export BUGSWARM_TOKEN=<bugswarm_token>
+  - timestamp="$(date '+%s')"
+  - python3 agentless/fl/localize.py --file_level --related_level --fine_grain_line_level --output_folder <loc_output_folder>/<bugswarm_artifact>_$timestamp --top_n <n_files> --compress --context_window=<window_size> --bugswarm_image <bugswarm_artifact> --model <model_name> --backend <backend> --language <language>
