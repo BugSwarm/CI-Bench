@@ -1,0 +1,26 @@
+tool_name: auto-code-rover
+parameters:
+  setup_folder: setup
+  output_folder: output
+  model_name: gpt-4o-2024-05-13
+  working_directory: tools/auto-code-rover
+  temparature: 0.2
+  bugswarm_token: <token>
+  openai_token: <token>
+  anthropic_token: <token>
+  venv_name: auto-code-rover
+  
+setup_commands:
+  conda:
+    - conda env create -f environment.yml
+    - conda activate <venv_name>
+    - pip install -r requirements.txt
+  python:
+    - python3 -m venv <venv_name>
+    - source <venv_name>/bin/activate
+    - pip install -r requirements.txt
+
+run_commands:
+  - export BUGSWARM_TOKEN=<bugswarm_token> 
+  - export OPENAI_KEY=<openai_token> 
+  - PYTHONPATH=. python3 app/main.py bugswarm-task --output-dir <output_folder> --setup-dir <setup_folder> --model <model_name> --model-temperature <temparature> --bugswarm-image-tag <bugswarm_artifact>
